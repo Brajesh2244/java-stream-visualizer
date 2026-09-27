@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Java Stream API Visualizer - Interactive Learning & Interview Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+            <path d="M12 12v9"></path>
+            <path d="m8 17 4 4 4-4"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">Java Stream API <span class="badge-accent">Visualizer</span></h1>
+          <p class="brand-subtitle">Interactive visual guide from Source → Intermediate → Terminal Operations</p>
+        </div>
+      </div>
+      
+      <div class="header-rules-badge">
+        <div class="rule-chip intermediate">
+          <span class="indicator-dot green"></span>
+          <span><strong>Intermediate:</strong> Returns <code>Stream&lt;T&gt;</code> (Continues)</span>
+        </div>
+        <div class="rule-chip terminal">
+          <span class="indicator-dot orange"></span>
+          <span><strong>Terminal:</strong> Ends Stream (Produces Result)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs-wrapper">
+      <div class="nav-tabs" id="mainNav">
+        <button class="nav-tab active" data-tab="builder">
+          <span class="tab-icon">🛠️</span>
+          <span>Pipeline Builder</span>
+          <span class="tab-pill">Interactive</span>
+        </button>
+        <button class="nav-tab" data-tab="operations">
+          <span class="tab-icon">🧪</span>
+          <span>Operations Explorer</span>
+        </button>
+        <button class="nav-tab" data-tab="lazy">
+          <span class="tab-icon">⚡</span>
+          <span>Lazy Evaluation Lab</span>
+        </button>
+        <button class="nav-tab" data-tab="sources">
+          <span class="tab-icon">📦</span>
+          <span>Stream Sources</span>
+        </button>
+        <button class="nav-tab" data-tab="cheat-sheet">
+          <span class="tab-icon">🎯</span>
+          <span>Remember This & Pitfalls</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content Body -->
+  <main class="main-container">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: BUILD YOUR STREAM (PIPELINE BUILDER) -->
+    <!-- ========================================== -->
+    <section id="tab-builder" class="tab-pane active">
+      <div class="section-intro">
+        <div class="intro-text">
+          <h2>Build Your Stream Pipeline</h2>
+          <p>Assemble custom operations, inspect type transformations, and animate real data traversing through your Java Stream.</p>
+        </div>
+        <div class="intro-actions">
+          <button class="btn btn-outline" id="loadPresetBtn">Load Example Preset ▾</button>
+          <div class="dropdown-menu" id="presetsMenu">
+            <button data-preset="even-doubled">Even Numbers Doubled & Sorted</button>
+            <button data-preset="word-length">Filter Long Words & Count</button>
+            <button data-preset="find-first-greater">First Number &gt; 20</button>
+            <button data-preset="distinct-limit">Remove Duplicates & Limit</button>
+            <button data-preset="sum-reduce">Calculate Sum (reduce)</button>
+          </div>
+          <button class="btn btn-secondary" id="resetPipelineBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <div class="builder-layout">
+        <!-- Left: Configuration Column -->
+        <div class="builder-config-panel">
+          <!-- Step 1: Choose Source -->
+          <div class="config-card">
+            <div class="card-step-header">
+              <span class="step-number">1</span>
+              <div>
+                <h3>Select Stream Source</h3>
+                <span class="step-desc">Pick data collection or primitive array</span>
+              </div>
+            </div>
+            <div class="source-select-group">
+              <select id="builderSourceSelect" class="form-select">
+                <option value="numbers-default">List&lt;Integer&gt;: [10, 20, 30, 40, 50]</option>
+                <option value="numbers-mixed">List&lt;Integer&gt;: [15, 4, 28, 4, 42, 9, 33]</option>
+                <option value="strings-fruits">List&lt;String&gt;: ["apple", "banana", "kiwi", "banana", "orange"]</option>
+                <option value="primitive-ints">int[]: [5, 12, 18, 24, 30]</option>
+                <option value="custom">Custom comma-separated values...</option>
+              </select>
+              
+              <div id="customSourceInputWrap" class="custom-input-wrap hidden">
+                <input type="text" id="customSourceInput" placeholder="e.g. 12, 5, 88, 19, 44" class="form-input">
+                <button id="applyCustomSourceBtn" class="btn btn-sm btn-primary">Set</button>
+              </div>
+
+              <div class="source-preview-box">
+                <div class="preview-label">Original Data:</div>
+                <div class="data-boxes-row" id="builderSourceBoxes">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Intermediate Operations Chain -->
+          <div class="config-card">
+            <div class="card-step-header">
+              <span class="step-number">2</span>
+              <div>
+                <h3>Intermediate Operations</h3>
+                <span class="step-desc">Returns <code>Stream&lt;T&gt;</code> &bull; Multiple allowed &bull; Evaluated lazily</span>
+              </div>
+            </div>
+            
+            <div class="operations-chain-list" id="builderOpsList">
+              <!-- Dynamically populated operation items -->
+            </div>
+
+            <div class="add-op-dropdown-wrap">
+              <button class="btn btn-outline-primary btn-block" id="addOpDropdownBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add Intermediate Operation
+              </button>
+              <div class="dropdown-menu wide" id="addOpMenu">
+                <div class="menu-group-title">Filter & Slice</div>
+                <button data-add-op="filter">filter(condition) - Keep elements matching condition</button>
+                <button data-add-op="distinct">distinct() - Remove duplicates</button>
+                <button data-add-op="limit">limit(n) - Take only first N elements</button>
+                <button data-add-op="skip">skip(n) - Drop first N elements</button>
+                <button data-add-op="takeWhile">takeWhile(condition) - Take until condition fails</button>
+                <button data-add-op="dropWhile">dropWhile(condition) - Drop until condition fails</button>
+                
+                <div class="menu-group-title">Transform & Order</div>
+                <button data-add-op="map">map(fn) - Transform each element</button>
+                <button data-add-op="sorted">sorted() - Ascending order</button>
+                <button data-add-op="sortedDesc">sorted(reverseOrder()) - Descending order</button>
+                <button data-add-op="peek">peek(consumer) - Inspect elements without change</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Terminal Operation -->
+          <div class="config-card">
+            <div class="card-step-header">
+              <span class="step-number">3</span>
+              <div>
+                <h3>Terminal Operation</h3>
+                <span class="step-desc">Consumes Stream &bull; Exactly one &bull; Triggers execution</span>
+              </div>
+            </div>
+            
+            <div class="terminal-select-group">
+              <select id="builderTerminalSelect" class="form-select terminal-select">
+                <option value="toList">.toList() → List&lt;T&gt; (Unmodifiable list)</option>
+                <option value="count">.count() → long (Count elements)</option>
+                <option value="findFirst">.findFirst() → Optional&lt;T&gt; (First element)</option>
+                <option value="findAny">.findAny() → Optional&lt;T&gt; (Any element)</option>
+                <option value="min">.min(Comparator) → Optional&lt;T&gt; (Minimum element)</option>
+                <option value="max">.max(Comparator) → Optional&lt;T&gt; (Maximum element)</option>
+                <option value="anyMatch">.anyMatch(n &gt; 20) → boolean (Check if any match)</option>
+                <option value="allMatch">.allMatch(n &gt; 0) → boolean (Check if all match)</option>
+                <option value="noneMatch">.noneMatch(n &lt; 0) → boolean (Check if none match)</option>
+                <option value="reduceSum">.reduce(0, (a, b) -&gt; a + b) → T (Sum of elements)</option>
+                <option value="forEach">.forEach(System.out::println) → void (Consume all)</option>
+              </select>
+              
+              <div class="terminal-explanation-chip" id="terminalExplainChip">
+                Produces final output and closes the Stream.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Visualization & Execution Area -->
+        <div class="builder-visual-panel">
+          <!-- Flow Pipeline Diagram -->
+          <div class="pipeline-card">
+            <div class="pipeline-header">
+              <div class="pipeline-title-group">
+                <h3>Stream Execution Pipeline</h3>
+                <span class="pipeline-status-badge" id="pipelineStatusBadge">Ready</span>
+              </div>
+              <div class="animation-controls">
+                <button class="btn btn-icon" id="prevStepBtn" title="Previous Step" disabled>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <button class="btn btn-primary" id="runPipelineBtn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  <span id="runBtnLabel">Run Pipeline</span>
+                </button>
+                <button class="btn btn-icon" id="nextStepBtn" title="Next Step">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+                <div class="speed-control">
+                  <label for="speedSelect">Speed:</label>
+                  <select id="speedSelect" class="form-select-sm">
+                    <option value="1200">0.75x</option>
+                    <option value="800" selected>1.0x</option>
+                    <option value="400">1.5x</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pipeline Flow Diagram Track -->
+            <div class="pipeline-track" id="pipelineTrack">
+              <!-- Dynamically constructed stages: Source -> Stream() -> Op1 -> Op2 -> Terminal -> Result -->
+            </div>
+
+            <!-- Step by step visual narrative log -->
+            <div class="step-narrative-bar" id="stepNarrativeBar">
+              <div class="narrative-icon">ℹ️</div>
+              <div class="narrative-text" id="stepNarrativeText">
+                Configure your operations on the left and click <strong>Run Pipeline</strong> to watch data transform through each step.
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Return Type & Type Progression Box -->
+          <div class="type-progression-card">
+            <div class="type-header">
+              <h4>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v1"></path><path d="M18 8h4a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-4"></path><polyline points="10 9 9 9 8 9"></polyline></svg>
+                Return Type Progression
+              </h4>
+              <span class="type-rule-tag">Intermediate = Stream&lt;T&gt; | Terminal = Final Type</span>
+            </div>
+            <div class="type-chain-display" id="typeChainDisplay">
+              <!-- Dynamically rendered type pill chain -->
+            </div>
+          </div>
+
+          <!-- Generated Java Code Block -->
+          <div class="code-preview-card">
+            <div class="code-header">
+              <span class="code-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                Generated Java Code
+              </span>
+              <button class="btn btn-sm btn-ghost" id="copyCodeBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copy
+              </button>
+            </div>
+            <pre class="code-block"><code id="generatedJavaCode">// Java Code will generate dynamically</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: OPERATIONS EXPLORER (DEEP DIVE)     -->
+    <!-- ========================================== -->
+    <section id="tab-operations" class="tab-pane">
+      <div class="section-intro">
+        <div class="intro-text">
+          <h2>Stream Operations Deep Dive</h2>
+          <p>Click any Intermediate or Terminal operation card to see real transformation animations, syntax, "Why?" explanations, and return types.</p>
+        </div>
+        <div class="filter-pills">
+          <button class="filter-pill active" data-filter="all">All Operations (25)</button>
+          <button class="filter-pill intermediate" data-filter="intermediate">🟢 Intermediate (11)</button>
+          <button class="filter-pill terminal" data-filter="terminal">🟠 Terminal (14)</button>
+        </div>
+      </div>
+
+      <div class="ops-explorer-layout">
+        <!-- Left: Operation Card Grid -->
+        <div class="ops-card-grid" id="opsCardGrid">
+          <!-- Dynamically populated cards -->
+        </div>
+
+        <!-- Right: Interactive Inspector Showcase -->
+        <div class="op-inspector-panel" id="opInspectorPanel">
+          <div class="op-detail-card" id="opDetailCard">
+            <!-- Dynamically populated detail view with live test bench -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: LAZY EVALUATION LAB                 -->
+    <!-- ========================================== -->
+    <section id="tab-lazy" class="tab-pane">
+      <div class="section-intro">
+        <div class="intro-text">
+          <h2>Lazy Evaluation & Pull-Pipeline Visualizer</h2>
+          <p>Understand why Streams are super fast: Intermediate operations are <strong>lazy</strong> and do zero work until a terminal operation <strong>pulls</strong> data element-by-element.</p>
+        </div>
+        <div class="lazy-badge-group">
+          <span class="concept-chip">💡 Core Java Concept</span>
+          <span class="concept-chip">⚡ Short-Circuit Optimization</span>
+        </div>
+      </div>
+
+      <div class="lazy-lab-grid">
+        <!-- Interactive Demo Panel -->
+        <div class="lazy-demo-card">
+          <div class="lazy-code-box">
+            <div class="code-line"><span class="java-kw">List</span>&lt;<span class="java-type">Integer</span>&gt; numbers = List.of(<span class="hl-num">10</span>, <span class="hl-num">20</span>, <span class="hl-num">30</span>, <span class="hl-num">40</span>, <span class="hl-num">50</span>);</div>
+            <div class="code-line indent1">numbers.stream()</div>
+            <div class="code-line indent2" id="lazyLineFilter">.filter(n -&gt; n &gt; 20)      <span class="code-comment">// Intermediate (Lazy)</span></div>
+            <div class="code-line indent2" id="lazyLineMap">.map(n -&gt; n * 2)          <span class="code-comment">// Intermediate (Lazy)</span></div>
+            <div class="code-line indent2" id="lazyLineTerminal">.findFirst();             <span class="code-comment" id="lazyTerminalComment">// Terminal (Triggers Pull!)</span></div>
+          </div>
+
+          <div class="lazy-controls-bar">
+            <div class="lazy-btn-group">
+              <button class="btn btn-primary" id="runLazyBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <span>Step-by-Step Simulation</span>
+              </button>
+              <button class="btn btn-outline" id="lazyNextStepBtn" disabled>Next Element ⏭</button>
+              <button class="btn btn-secondary" id="resetLazyBtn">Reset</button>
+            </div>
+            <div class="toggle-terminal-wrap">
+              <label class="switch-label">
+                <input type="checkbox" id="lazyTerminalToggle" checked>
+                <span class="switch-slider"></span>
+                <span class="label-text">Terminal Operation Attached</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Step Trace Simulation Canvas -->
+          <div class="lazy-trace-canvas" id="lazyTraceCanvas">
+            <!-- Dynamically populated trace visualization -->
+          </div>
+
+          <!-- Explanation Banner -->
+          <div class="lazy-explanation-box" id="lazyExplanationBox">
+            <div class="explanation-title">✨ Key Takeaway for Java Interviews:</div>
+            <p>
+              In traditional loops, you would filter <em>all 5 elements</em> first, then map <em>all matching elements</em>.
+              In Java Streams with <code>findFirst()</code>, the pipeline stops immediately after processing <strong>30</strong>!
+              Elements <strong>40</strong> and <strong>50</strong> are <strong>never inspected</strong>. That is the power of Lazy Evaluation & Short-Circuiting.
+            </p>
+          </div>
+        </div>
+
+        <!-- Comparison side by side: Eager vs Lazy -->
+        <div class="comparison-card">
+          <h3>Traditional Loop vs Stream API</h3>
+          
+          <div class="comp-table">
+            <div class="comp-col eager">
+              <h4>❌ Traditional Eager Loop</h4>
+              <div class="comp-badge">Eager Evaluation</div>
+              <ul>
+                <li>Iterates entire collection at each step</li>
+                <li>Creates intermediate temporary lists</li>
+                <li>Processes all items even if you only need the first match</li>
+                <li>Higher memory footprint & cache misses</li>
+              </ul>
+              <div class="perf-metric bad">Executes: 5 filters + 3 maps = 8 operations</div>
+            </div>
+
+            <div class="comp-col lazy">
+              <h4>✅ Java Stream Pipeline</h4>
+              <div class="comp-badge stream">Lazy Pull Evaluation</div>
+              <ul>
+                <li>Intermediate operations do <strong>nothing</strong> until terminal op triggers</li>
+                <li>Data flows element-by-element (no intermediate lists)</li>
+                <li><strong>Short-circuits</strong> as soon as condition satisfied</li>
+                <li>Zero heap allocation for intermediate stages</li>
+              </ul>
+              <div class="perf-metric good">Executes: 3 filters + 1 map = 4 operations!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: STREAM SOURCES                      -->
+    <!-- ========================================== -->
+    <section id="tab-sources" class="tab-pane">
+      <div class="section-intro">
+        <div class="intro-text">
+          <h2>Stream Sources: 10 Ways to Create a Stream</h2>
+          <p>Streams don't store data; they carry data from a source through a pipeline. Click any source to inspect its creation syntax and data representation.</p>
+        </div>
+      </div>
+
+      <div class="sources-grid" id="sourcesGrid">
+        <!-- 10 Sources Dynamically Rendered -->
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 5: REMEMBER THIS & CHEAT SHEET         -->
+    <!-- ========================================== -->
+    <section id="tab-cheat-sheet" class="tab-pane">
+      <div class="section-intro">
+        <div class="intro-text">
+          <h2>"Remember This" Cheat Sheet & Interview Pitfalls</h2>
+          <p>Essential mental models, return type lookup table, and the most common Java interview traps.</p>
+        </div>
+      </div>
+
+      <!-- Golden Rule Banner -->
+      <div class="golden-rule-banner">
+        <div class="golden-rule-content">
+          <div class="rule-icon">💎</div>
+          <div>
+            <h3>The Golden Stream Rule</h3>
+            <p>
+              <strong>Intermediate operations</strong> transform a Stream into another <code>Stream&lt;T&gt;</code> (pipeline continues).<br>
+              <strong>Terminal operations</strong> consume the Stream and produce a final result (Stream is closed and cannot be reused).
+            </p>
+          </div>
+        </div>
+        <div class="rule-diagram">
+          <div class="rd-box source">SOURCE</div>
+          <div class="rd-arrow">↓</div>
+          <div class="rd-box intermediate">INTERMEDIATE (filter, map)</div>
+          <div class="rd-arrow">↓</div>
+          <div class="rd-box intermediate">INTERMEDIATE (sorted, limit)</div>
+          <div class="rd-arrow">↓</div>
+          <div class="rd-box terminal">TERMINAL (toList, count)</div>
+          <div class="rd-arrow">↓</div>
+          <div class="rd-box result">FINAL RESULT (List, long, boolean)</div>
+        </div>
+      </div>
+
+      <!-- Return Type Matrix Table -->
+      <div class="return-type-matrix-card">
+        <h3>Quick Return Type Lookup</h3>
+        <div class="table-responsive">
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th>Operation</th>
+                <th>Category</th>
+                <th>Return Type</th>
+                <th>Short-Circuiting?</th>
+                <th>Primary Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>filter(Predicate)</code></td>
+                <td><span class="badge-inter">Intermediate</span></td>
+                <td><code>Stream&lt;T&gt;</code></td>
+                <td>No</td>
+                <td>Keeps elements matching condition</td>
+              </tr>
+              <tr>
+                <td><code>map(Function)</code></td>
+                <td><span class="badge-inter">Intermediate</span></td>
+                <td><code>Stream&lt;R&gt;</code></td>
+                <td>No</td>
+                <td>Transforms each element into a new value</td>
+              </tr>
+              <tr>
+                <td><code>flatMap(Function)</code></td>
+                <td><span class="badge-inter">Intermediate</span></td>
+                <td><code>Stream&lt;R&gt;</code></td>
+                <td>No</td>
+                <td>Flattens nested streams/collections into 1 stream</td>
+              </tr>
+              <tr>
+                <td><code>distinct()</code></td>
+                <td><span class="badge-inter">Intermediate</span></td>
+                <td><code>Stream&lt;T&gt;</code></td>
+                <td>No (Stateful)</td>
+                <td>Filters out duplicates via <code>equals()</code></td>
+              </tr>
+              <tr>
+                <td><code>sorted()</code></td>
+                <td><span class="badge-inter">Intermediate</span></td>
+                <td><code>Stream&lt;T&gt;</code></td>
+                <td>No (Stateful)</td>
+                <td>Sorts elements in natural order</td>
+              </tr>
+              <tr>
+                <td><code>limit(maxSize)</code></td>
+                <td><span class="badge-inter">Intermediate</span></td>
+                <td><code>Stream&lt;T&gt;</code></td>
+                <td><strong>Yes</strong></td>
+                <td>Truncates stream to at most N elements</td>
+              </tr>
+              <tr>
+                <td><code>skip(n)</code></td>
+                <td><span class="badge-inter">Intermediate</span></td>
+                <td><code>Stream&lt;T&gt;</code></td>
+                <td>No</td>
+                <td>Discards the first N elements</td>
+              </tr>
+              <tr>
+                <td><code>toList()</code></td>
+                <td><span class="badge-term">Terminal</span></td>
+                <td><code>List&lt;T&gt;</code></td>
+                <td>No</td>
+                <td>Collects elements into an unmodifiable List</td>
+              </tr>
+              <tr>
+                <td><code>count()</code></td>
+                <td><span class="badge-term">Terminal</span></td>
+                <td><code>long</code></td>
+                <td>No</td>
+                <td>Returns the total count of elements</td>
+              </tr>
+              <tr>
+                <td><code>findFirst()</code></td>
+                <td><span class="badge-term">Terminal</span></td>
+                <td><code>Optional&lt;T&gt;</code></td>
+                <td><strong>Yes</strong></td>
+                <td>Returns the first element if present</td>
+              </tr>
+              <tr>
+                <td><code>findAny()</code></td>
+                <td><span class="badge-term">Terminal</span></td>
+                <td><code>Optional&lt;T&gt;</code></td>
+                <td><strong>Yes</strong></td>
+                <td>Returns any element (fastest in parallel)</td>
+              </tr>
+              <tr>
+                <td><code>anyMatch(Predicate)</code></td>
+                <td><span class="badge-term">Terminal</span></td>
+                <td><code>boolean</code></td>
+                <td><strong>Yes</strong></td>
+                <td>Returns true if at least one element matches</td>
+              </tr>
+              <tr>
+                <td><code>allMatch(Predicate)</code></td>
+                <td><span class="badge-term">Terminal</span></td>
+                <td><code>boolean</code></td>
+                <td><strong>Yes</strong></td>
+                <td>Returns true if every single element matches</td>
+              </tr>
+              <tr>
+                <td><code>noneMatch(Predicate)</code></td>
+                <td><span class="badge-term">Terminal</span></td>
+                <td><code>boolean</code></td>
+                <td><strong>Yes</strong></td>
+                <td>Returns true if zero elements match</td>
+              </tr>
+              <tr>
+                <td><code>reduce(identity, accumulator)</code></td>
+                <td><span class="badge-term">Terminal</span></td>
+                <td><code>T</code> / <code>Optional&lt;T&gt;</code></td>
+                <td>No</td>
+                <td>Folds all elements into a single aggregate value</td>
+              </tr>
+              <tr>
+                <td><code>forEach(Consumer)</code></td>
+                <td><span class="badge-term">Terminal</span></td>
+                <td><code>void</code></td>
+                <td>No</td>
+                <td>Performs side-effect on each element</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Top Interview Pitfalls -->
+      <div class="interview-traps-section">
+        <h3>Top 4 Java Stream Pitfalls (Interview Favorites)</h3>
+        <div class="traps-grid">
+          <div class="trap-card">
+            <div class="trap-header">
+              <span class="trap-tag danger">Pitfall #1</span>
+              <h4>Stream Reuse Exception</h4>
+            </div>
+            <div class="trap-code">
+              <code>Stream&lt;String&gt; s = list.stream();<br>
+s.forEach(System.out::println);<br>
+<span class="code-err">long count = s.count(); // 💥 IllegalStateException!</span></code>
+            </div>
+            <p><strong>Rule:</strong> A stream cannot be reused once a terminal operation has executed. Always create a new stream.</p>
+          </div>
+
+          <div class="trap-card">
+            <div class="trap-header">
+              <span class="trap-tag warning">Pitfall #2</span>
+              <h4>Order of Operations</h4>
+            </div>
+            <div class="trap-code">
+              <code><span class="code-comment">// Slow: transforms 100,000 items then filters</span><br>
+stream.map(expensiveFn).filter(pred);<br>
+<span class="code-ok">// Fast: filters first, transforms only 5 items</span><br>
+stream.filter(pred).map(expensiveFn);</code>
+            </div>
+            <p><strong>Rule:</strong> Always place filtering operations before expensive mapping or sorting operations to minimize workload.</p>
+          </div>
+
+          <div class="trap-card">
+            <div class="trap-header">
+              <span class="trap-tag danger">Pitfall #3</span>
+              <h4>Infinite Streams without limit()</h4>
+            </div>
+            <div class="trap-code">
+              <code><span class="code-err">Stream.iterate(0, i -&gt; i + 1)<br>
+  .collect(Collectors.toList()); // 💥 Infinite Loop / OOM</span><br>
+<span class="code-ok">Stream.iterate(0, i -&gt; i + 1).limit(10).toList();</span></code>
+            </div>
+            <p><strong>Rule:</strong> Infinite streams (<code>generate</code> or <code>iterate</code>) must be bounded using <code>limit()</code> or <code>takeWhile()</code> before terminal ops.</p>
+          </div>
+
+          <div class="trap-card">
+            <div class="trap-header">
+              <span class="trap-tag info">Pitfall #4</span>
+              <h4>forEach() with Shared Mutable State</h4>
+            </div>
+            <div class="trap-code">
+              <code>List&lt;Integer&gt; results = new ArrayList&lt;&gt;();<br>
+<span class="code-err">stream.parallel().forEach(results::add); // 💥 Thread safety bug!</span><br>
+<span class="code-ok">List&lt;Integer&gt; results = stream.toList(); // Clean & safe</span></code>
+            </div>
+            <p><strong>Rule:</strong> Avoid side-effects inside <code>forEach()</code>, especially with parallel streams. Use <code>collect()</code> or <code>toList()</code> instead.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <strong>Java Stream API Interactive Visualizer</strong> &bull; Built for Beginners & Java Interview Mastery
+      </div>
+      <div class="footer-links">
+        <span>Java 8 to 21+ Compatible</span>
+        <span>&bull;</span>
+        <span>Vanilla HTML/CSS/JS</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
